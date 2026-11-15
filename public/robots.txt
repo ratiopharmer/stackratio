@@ -14,4 +14,4 @@ Allow: /fonts/
 Allow: /*.js
 Disallow: /
 
-Sitemap: https://currentcycle.xyz/sitemap.xml
+Sitemap: https://ratiopharm.org/sitemap.xml
