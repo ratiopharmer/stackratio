@@ -1,0 +1,17 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "framework": null,
+  "installCommand": "",
+  "buildCommand": "",
+  "outputDirectory": "public",
+  "redirects": [
+    { "source": "/discord", "destination": "/", "permanent": false },
+    { "source": "/chat.html", "destination": "/", "permanent": false },
+    { "source": "/blut.html", "destination": "/", "permanent": false },
+    { "source": "/konto.html", "destination": "/", "permanent": false },
+    { "source": "/brain.html", "destination": "/", "permanent": false },
+    { "source": "/admin", "destination": "/", "permanent": false },
+    { "source": "/admin.html", "destination": "/", "permanent": false },
+    { "source": "/bloodwork-on-cycle.html", "destination": "/", "permanent": false }
+  ]
+}
