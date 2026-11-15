@@ -1,0 +1,386 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex, nofollow">
+<meta name="theme-color" content="#000000">
+<link rel="icon" type="image/svg+xml" href="favicon.svg?v=5">
+<link rel="manifest" href="manifest.json">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="cycle">
+<title>Account · Current Cycle</title>
+<link rel="preload" href="fonts/schibsted-grotesk-latin.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="theme.css?v=54">
+<style>
+  [hidden] { display: none !important; }
+  .card { max-width: 560px; }
+  .tabs { display: flex; gap: 18px; margin-bottom: 22px; }
+  .tabs button { color: var(--dim); transition: color .2s; } .tabs button.on { color: var(--fg); }
+  .f { display: grid; gap: 4px; margin-bottom: 16px; }
+  .f span { color: var(--dim); font-size: 12.5px; }
+  input, select, textarea { width: 100%; padding: 7px 0; border: 0; border-bottom: 1px solid #2a3338; background: transparent; color: var(--fg); font: inherit; outline: none; transition: border-color .25s; }
+  input:focus, select:focus, textarea:focus { border-color: var(--pill); }
+  select { appearance: none; cursor: pointer; } select option { background: #0b1114; }
+  textarea { resize: vertical; min-height: 60px; }
+  .go { margin-top: 6px; padding: 9px 20px; border-radius: 999px; background: var(--pill); color: #03201c; font-weight: 500; box-shadow: 0 0 22px -6px rgba(94,234,212,.8); transition: box-shadow .3s, opacity .2s; }
+  .go:hover { box-shadow: 0 0 30px -2px rgba(94,234,212,.95); } .go:disabled { opacity: .45; cursor: default; }
+  .msg { min-height: 1.5em; margin-top: 12px; color: var(--dim); } .msg.err { color: var(--err); } .msg.ok { color: var(--pill); }
+  .msg a { color: var(--amber); }
+  /* Stack editor: one row per substance */
+  .rows { display: grid; gap: 6px; margin-bottom: 8px; }
+  .r { display: grid; grid-template-columns: 1fr 4.6em 4.2em 7.8em 1.2em; gap: 10px; align-items: end; animation: rise .35s ease-out both; }
+  .r .x { color: var(--dim); padding-bottom: 7px; transition: color .2s; } .r .x:hover { color: var(--err); }
+  .r .amt { text-align: right; }
+  .r .hint { grid-column: 1 / -1; margin-top: -2px; color: var(--dim); font-size: 12px; }
+  .r .hint:empty { display: none; } .r .hint.ok { color: var(--pill); } .r .hint.amb { color: var(--amber); }
+  .r .hint button { color: var(--fg); font-size: 12px; text-decoration: underline; text-underline-offset: 2px; } .r .hint button:hover { color: var(--pill); }
+  .add { color: var(--amber); margin: 6px 0 22px; } .add::before { content: '+ '; }
+  .goal { display: flex; flex-wrap: wrap; gap: 8px; margin: 6px 0 18px; }
+  .goal button { padding: 5px 12px; border-radius: 999px; color: var(--dim); box-shadow: inset 0 0 0 1px rgba(255,255,255,.12); transition: color .2s, background .25s, box-shadow .25s; }
+  .goal button.on { color: #03201c; background: var(--pill); box-shadow: none; }
+  .two { display: grid; grid-template-columns: 8em 1fr; gap: 18px; }
+  .foot { display: flex; justify-content: space-between; align-items: center; margin-top: 18px; gap: 16px; flex-wrap: wrap; }
+  .foot .links { display: flex; gap: 16px; } .foot .links button { color: var(--dim); font-size: 13px; transition: color .2s; } .foot .links button:hover { color: var(--fg); }
+  .who { color: var(--dim); margin: -36px 0 26px; }
+  #acc { margin-bottom: 18px; }
+  .who b { font-weight: 500; color: var(--pill); } .who b.off { color: var(--err); }
+  .who .ext { color: var(--amber); font-size: inherit; } .who .ext:hover { color: var(--fg); }
+  #acc .redeem + .msg:empty { display: none; }
+  .redeem { display: flex; gap: 14px; align-items: end; } .redeem input { flex: 1; letter-spacing: .06em; } .redeem .go { margin: 0; }
+  #key, #rkey { text-transform: uppercase; letter-spacing: .06em; }
+  .buy { display: flex; flex-wrap: wrap; gap: 6px 18px; align-items: center; margin-top: 18px; color: var(--dim); font-size: 13.5px; }
+  .buy:empty { display: none; }
+  .buy .dc { display: inline-flex; align-items: center; gap: 7px; color: var(--fg); transition: color .2s; }
+  .buy .dc:hover { color: #8b9bff; } .buy .dc svg { width: 18px; height: 18px; fill: #5865f2; }
+  .forgot { margin-top: 14px; color: var(--dim); font-size: 13px; } .forgot a { color: var(--fg); text-decoration: underline; text-underline-offset: 2px; } .forgot a:hover { color: var(--pill); }
+  .pwbox { margin-top: 18px; padding-top: 16px; border-top: 1px solid rgba(255,255,255,.06); }
+  .pwbox .note { margin: 0 0 14px; color: var(--amber); font-size: 13.5px; }
+  .pwbox .row { display: flex; gap: 14px; align-items: end; flex-wrap: wrap; } .pwbox .row .f { flex: 1; min-width: 9em; margin-bottom: 0; }
+  @media (max-width: 560px) { .r { grid-template-columns: 1fr 4em 3.6em 1.2em; } .r .rh { grid-column: 1 / 4; } .r .x { grid-row: 1; grid-column: 4; } }
+  /* my stack: a table of compounds (column heads, one framed row per entry), then goal and details, save; account actions apart at the bottom */
+  .stk { max-width: 640px; }
+  .rhead, .stk .lab, .stk .two .f > span { color: var(--dim); font-size: 11.5px; letter-spacing: .08em; text-transform: uppercase; }
+  .rhead { display: grid; grid-template-columns: 1fr 70px 66px 124px 24px; gap: 10px; padding: 0 14px 8px; } .rhead span:nth-child(2) { text-align: right; }
+  .stk .rows { gap: 8px; margin-bottom: 10px; }
+  .stk .r { grid-template-columns: 1fr 70px 66px 124px 24px; align-items: center; padding: 4px 14px; border-radius: 12px; background: rgba(255,255,255,.025); box-shadow: inset 0 0 0 1px rgba(255,255,255,.07); transition: box-shadow .2s, background .2s; }
+  .stk .r:focus-within { box-shadow: inset 0 0 0 1px rgba(94,234,212,.45); background: rgba(94,234,212,.035); }
+  .stk .r input, .stk .r select { padding: 9px 0; border-bottom-color: transparent; }
+  .stk .r .x { padding: 0; font-size: 18px; line-height: 1; justify-self: end; }
+  .stk .r .hint { margin: -6px 0 6px; }
+  .stk .add { display: block; width: 100%; margin: 0 0 28px; padding: 11px 14px; border-radius: 12px; border: 1px dashed rgba(245,184,75,.32); text-align: left; transition: background .2s, border-color .2s; }
+  .stk .add:hover { background: rgba(245,184,75,.06); border-color: rgba(245,184,75,.55); }
+  .stk .sec { padding-top: 20px; border-top: 1px solid rgba(255,255,255,.07); }
+  .stk .lab { display: block; margin-bottom: 10px; }
+  .stk .goal { margin: 0 0 20px; }
+  .stk .two { grid-template-columns: 9em 1fr; align-items: start; gap: 22px; } .stk .two textarea { min-height: 84px; }
+  .stk .foot { justify-content: flex-start; gap: 18px; margin-top: 4px; padding-top: 18px; border-top: 1px solid rgba(255,255,255,.07); }
+  .stk .foot .go { margin: 0; } .stk .foot .msg { margin: 0; min-height: 0; }
+  .stk .acct { display: flex; align-items: center; justify-content: space-between; gap: 10px 16px; flex-wrap: wrap; margin-top: 28px; padding-top: 14px; border-top: 1px solid rgba(255,255,255,.05); }
+  .stk .acct .lab { margin: 0; }
+  .stk .acct .links { display: flex; flex-wrap: wrap; gap: 16px; } .stk .acct .links button { color: var(--dim); font-size: 13px; transition: color .2s; }
+  .stk .acct .links button:hover { color: var(--fg); } .stk .acct #del:hover { color: var(--err); }
+  @media (max-width: 560px) {   /* phones: every entry is a small card – name on top, amount · unit · frequency below */
+    .rhead { display: none; }
+    .stk .r { grid-template-columns: 1fr 1fr 1.7fr 1.4em; column-gap: 12px; padding: 2px 12px 6px; }
+    .stk .r .nm { grid-column: 1 / 4; grid-row: 1; } .stk .r .x { grid-column: 4; grid-row: 1; }
+    .stk .r .amt { grid-column: 1; grid-row: 2; text-align: left; } .stk .r .un { grid-column: 2; grid-row: 2; } .stk .r .rh { grid-column: 3 / 5; grid-row: 2; }
+    .stk .r .nm { font-weight: 500; padding-bottom: 4px; } .stk .r .amt, .stk .r .un, .stk .r .rh { padding: 2px 0 6px; color: var(--dim); }
+    .stk .two { grid-template-columns: 1fr; gap: 0; }
+    .who { margin: -14px 0 28px; }
+    canvas.field { opacity: .2; }
+  }
+</style>
+<script>addEventListener('pagereveal', (e) => { if (e.viewTransition) document.documentElement.classList.add('vt'); });</script>
+<script src="/i18n.js?v=12" defer></script>
+</head>
+<body>
+<div class="wrap">
+  <nav><a class="brand" href="/">current cycle</a><a href="/brain.html">database</a><a href="/chat.html">ai chat</a><a href="/blut.html">bloodwork</a><a href="/rechner.html">calculator</a><a href="/konto.html" class="on">account</a><a class="dc" href="/discord" target="_blank" rel="noopener" aria-label="Discord" title="Discord"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20.3 4.4A19.6 19.6 0 0 0 15.4 3l-.6 1.3a18.2 18.2 0 0 0-5.6 0L8.6 3a19.5 19.5 0 0 0-4.9 1.5C.6 9.1-.3 13.6.1 18.1a19.8 19.8 0 0 0 6 3l1.3-2.1a12.8 12.8 0 0 1-2-1l.5-.4a14 14 0 0 0 12.2 0l.5.4c-.6.4-1.3.7-2 1l1.3 2.1a19.7 19.7 0 0 0 6-3c.5-5.2-.9-9.7-3.6-13.7ZM8 15.3c-1.2 0-2.2-1.1-2.2-2.4S6.8 10.5 8 10.5s2.2 1.1 2.2 2.4-1 2.4-2.2 2.4Zm8 0c-1.2 0-2.2-1.1-2.2-2.4s1-2.4 2.2-2.4 2.2 1.1 2.2 2.4-1 2.4-2.2 2.4Z"/></svg></a></nav>
+  <canvas class="field" data-shape="user" data-x="auto" data-y=".46" aria-hidden="true"></canvas>
+  <h1 class="hero" id="title">Account</h1>
+  <p class="who" id="who" hidden></p>
+
+  <!-- logged out -->
+  <section class="card glass" id="auth" hidden>
+    <div class="tabs"><button type="button" class="on" data-m="login">log in</button><button type="button" data-m="register">register</button></div>
+    <form id="authForm">
+      <label class="f"><span>name</span><input id="user" autocomplete="username" required minlength="3" maxlength="24" autocapitalize="none" spellcheck="false"></label>
+      <label class="f"><span>password</span><input id="pass" type="password" autocomplete="current-password" required></label>
+      <label class="f" id="keyRow" hidden><span>key</span><input id="key" autocomplete="off" spellcheck="false" autocapitalize="characters" placeholder="CC-XXXX-XXXX-XXXX"></label>
+      <button type="submit" class="go" id="authGo">log in</button>
+      <div class="msg" id="authMsg" role="alert"></div>
+      <p class="forgot" id="forgot">forgot your password? <a href="/discord" target="_blank" rel="noopener">open a ticket on discord</a> – you get a new one there.</p>
+    </form>
+    <div class="buy"></div>
+  </section>
+
+  <!-- logged in: access key status, redeem / extend -->
+  <section class="card glass" id="acc" hidden>
+    <p class="st" id="accLine"></p>
+    <form class="redeem" id="redeemForm"><input id="rkey" autocomplete="off" spellcheck="false" autocapitalize="characters" placeholder="CC-XXXX-XXXX-XXXX" aria-label="Key" required><button type="submit" class="go" id="redeemGo">redeem</button></form>
+    <div class="msg" id="accMsg" role="status"></div>
+    <div class="buy" id="accBuy"></div>
+  </section>
+
+  <!-- logged in: own stack -->
+  <section class="card glass stk" id="mine" hidden>
+    <div class="rhead" aria-hidden="true"><span>compound</span><span>amount</span><span>unit</span><span>frequency</span><span></span></div>
+    <div class="rows" id="rows"></div>
+    <button type="button" class="add" id="add">entry</button>
+    <div class="sec">
+      <span class="lab">goal</span>
+      <div class="goal" id="goal"><button type="button" data-g="bulk">bulk</button><button type="button" data-g="cut">cut</button><button type="button" data-g="recomp">recomp</button><button type="button" data-g="cruise">cruise</button><button type="button" data-g="trt">trt</button><button type="button" data-g="pause">pause / pct</button></div>
+    </div>
+    <div class="sec two">
+      <label class="f"><span>weight kg</span><input id="weight" inputmode="decimal" placeholder="–"></label>
+      <label class="f"><span>note (experience, bloodwork, side effects …)</span><textarea id="note" maxlength="600"></textarea></label>
+    </div>
+    <div class="foot"><button type="button" class="go" id="save">save</button><div class="msg" id="saveMsg" role="status"></div></div>
+    <div class="acct"><span class="lab">account</span><div class="links"><button type="button" id="pwLink">change password</button><button type="button" id="logout">log out</button><button type="button" id="del">delete account</button></div></div>
+    <form class="pwbox" id="pwForm" hidden>
+      <p class="note" id="pwNote" hidden>You logged in with a temporary password – set your own now.</p>
+      <div class="row">
+        <label class="f"><span>current password</span><input id="pwOld" type="password" autocomplete="current-password" required></label>
+        <label class="f"><span>new password</span><input id="pwNew" type="password" autocomplete="new-password" minlength="8" placeholder="at least 8 characters" required></label>
+        <button type="submit" class="go" id="pwGo">save password</button>
+      </div>
+      <div class="msg" id="pwMsg" role="status"></div>
+    </form>
+  </section>
+</div>
+
+<datalist id="names">
+  <option value="Testosterone Enanthate"><option value="Testosterone Cypionate"><option value="Testosterone Propionate"><option value="Trenbolone Acetate"><option value="Trenbolone Enanthate">
+  <option value="Nandrolone Decanoate"><option value="NPP"><option value="Masteron (Drostanolone)"><option value="Primobolan"><option value="Boldenone (EQ)"><option value="Oxandrolone (Anavar)">
+  <option value="Methandienone (Dianabol)"><option value="Turinabol"><option value="Anadrol"><option value="Winstrol"><option value="Proviron"><option value="HGH">
+  <option value="Insulin"><option value="Retatrutide"><option value="Tirzepatide"><option value="Semaglutide"><option value="BPC-157"><option value="TB-500">
+  <option value="Exemestane"><option value="Anastrozole"><option value="Letrozole"><option value="Tamoxifen"><option value="Clomiphene"><option value="HCG"><option value="Cabergoline">
+  <option value="Telmisartan"><option value="Nebivolol"><option value="Rosuvastatin"><option value="Finasteride"><option value="Dutasteride"><option value="T3"><option value="Clenbuterol">
+</datalist>
+
+<script src="errors.js?v=2"></script>
+<script src="field.js?v=34"></script>
+<script>
+const $ = (id) => document.getElementById(id);
+const esc = (s) => String(s ?? '').replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+const setTitle = (t) => { const sp = $('title').querySelector('.ln > span'); (sp || $('title')).textContent = t; };   // keeps the gradient line
+const RH = ['pro Woche', '2× pro Woche', '3× pro Woche', 'täglich', 'alle 2 Tage', 'alle 3 Tage', 'vor dem Training', 'bei Bedarf'];
+const RHL = { 'pro Woche': 'weekly', '2× pro Woche': '2× weekly', '3× pro Woche': '3× weekly', 'täglich': 'daily', 'alle 2 Tage': 'every 2 days', 'alle 3 Tage': 'every 3 days', 'vor dem Training': 'pre-workout', 'bei Bedarf': 'as needed' };   // internal keys stay German so saved stacks keep working
+const UNITS = ['mg', 'mcg', 'IU', 'ml', 'Tabs'];
+let mode = 'login', goal = '';
+
+async function api(path, body, method = 'POST') {
+  const r = await fetch('api/account/' + path, { method, credentials: 'same-origin', headers: { 'Content-Type': 'application/json' }, body: method === 'GET' ? undefined : JSON.stringify(body || {}) })
+    .catch(() => { throw new TypeError(NET_ERROR); });
+  const data = await r.json().catch(() => ({ error: httpError(r.status) }));
+  if (!r.ok) throw Object.assign(new Error(data.error || httpError(r.status)), { status: r.status });
+  return data;
+}
+
+// ── logged out ──
+document.querySelector('.tabs').addEventListener('click', (e) => {
+  const b = e.target.closest('button'); if (!b) return;
+  mode = b.dataset.m;
+  document.querySelectorAll('.tabs button').forEach((x) => x.classList.toggle('on', x === b));
+  $('keyRow').hidden = mode !== 'register';
+  $('key').required = mode === 'register';
+  $('pass').autocomplete = mode === 'register' ? 'new-password' : 'current-password';
+  $('authGo').textContent = mode === 'register' ? 'create account' : 'log in';
+  $('forgot').hidden = mode === 'register';
+  $('authMsg').textContent = '';
+});
+// how to get a key: paid by hand, the key comes via Discord
+const DISCORD = 'ssupremos';
+const DC_ICON = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20.3 4.4A19.6 19.6 0 0 0 15.4 3l-.6 1.3a18.2 18.2 0 0 0-5.6 0L8.6 3a19.5 19.5 0 0 0-4.9 1.5C.6 9.1-.3 13.6.1 18.1a19.8 19.8 0 0 0 6 3l1.3-2.1a12.8 12.8 0 0 1-2-1l.5-.4a14 14 0 0 0 12.2 0l.5.4c-.6.4-1.3.7-2 1l1.3 2.1a19.7 19.7 0 0 0 6-3c.5-5.2-.9-9.7-3.6-13.7ZM8 15.3c-1.2 0-2.2-1.1-2.2-2.4S6.8 10.5 8 10.5s2.2 1.1 2.2 2.4-1 2.4-2.2 2.4Zm8 0c-1.2 0-2.2-1.1-2.2-2.4s1-2.4 2.2-2.4 2.2 1.1 2.2 2.4-1 2.4-2.2 2.4Z"/></svg>';
+document.querySelectorAll('.buy').forEach((b) => { b.innerHTML = `<span>$10 / month · $30 lifetime · crypto</span><a class="dc" href="/discord" target="_blank" rel="noopener">${DC_ICON}<span>get a key on discord</span></a>`; });
+$('authForm').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  $('authMsg').className = 'msg'; $('authMsg').textContent = '';
+  $('authGo').disabled = true;
+  try {
+    const body = { user: $('user').value, pass: $('pass').value };
+    if (mode === 'register') body.key = $('key').value;
+    showMine(await api(mode, body));
+  } catch (err) { $('authMsg').className = 'msg err'; $('authMsg').textContent = err.message; }
+  finally { $('authGo').disabled = false; }
+});
+
+// ── logged in ──
+function row(it = {}) {
+  const d = document.createElement('div');
+  d.className = 'r';
+  const amt = it.amount == null ? '' : String(it.amount).replace('.', ',');
+  d.innerHTML = `<input class="nm" list="names" placeholder="compound" maxlength="60" value="${esc(it.name)}" aria-label="Compound">
+    <input class="amt" inputmode="decimal" placeholder="amount" value="${esc(amt)}" aria-label="Amount">
+    <select class="un" aria-label="Unit">${UNITS.map((u) => `<option${u === (it.unit || 'mg') ? ' selected' : ''}>${u}</option>`).join('')}</select>
+    <select class="rh" aria-label="Schedule">${RH.map((r) => `<option value="${r}"${r === (it.rhythm || 'pro Woche') ? ' selected' : ''}>${RHL[r] || r}</option>`).join('')}</select>
+    <button type="button" class="x" aria-label="Remove entry">×</button>
+    <small class="hint" aria-live="polite"></small>`;
+  return d;
+}
+
+// ── compound name recognition: short names, slang, brands and German spellings become the full name ──
+const norm = (s) => s.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/[^a-z0-9]/g, '');
+const CANON = [...document.querySelectorAll('#names option')].map((o) => o.value);
+const ALIASES = {
+  'Testosterone Enanthate': 'test e,teste,test enanthate,test enantat,testo e,testosteron enantat,testosterone enantat,te,enanthate,enantat,testoviron',
+  'Testosterone Cypionate': 'test c,testc,test cyp,testo c,cyp,cypionate,testosteron cypionat,depo testosterone,tc',
+  'Testosterone Propionate': 'test p,testp,test prop,testo p,prop,propionate,testosteron propionat,tp',
+  'Trenbolone Acetate': 'tren a,trena,tren ace,tren acetate,tren acetat,trenbolon acetat,trenbolone acetat,ta',
+  'Trenbolone Enanthate': 'tren e,trene,tren enanthate,tren enantat,trenbolon enantat,trenbolone enantat',
+  'Nandrolone Decanoate': 'deca,deca durabolin,nandrolon decanoat,nandrolone decanoat,nd',
+  'NPP': 'nandrolone phenylpropionate,nandrolon phenylpropionat,nandrolone phenpropionate',
+  'Masteron (Drostanolone)': 'drosta,drost,mast,masteron,mast p,mast e,mast prop,mast enanthate,masteron p,masteron e,masteron prop,masteron enanthate,drostanolone,drostanolon,drostanolone propionate,drostanolon propionat',
+  'Primobolan': 'primo,primo e,primo depot,methenolone,metenolon,methenolon,primobolan depot',
+  'Boldenone (EQ)': 'eq,bold,boldenone,boldenon,equipoise,boldenone undecylenate,boldenon undecylenat',
+  'Oxandrolone (Anavar)': 'var,anavar,oxandrolone,oxandrolon,oxa,oxan',
+  'Methandienone (Dianabol)': 'dbol,d bol,dianabol,methandienone,methandienon,methandrostenolone,metandienon',
+  'Turinabol': 'tbol,t bol,turanabol,oral turinabol,chlorodehydromethyltestosterone',
+  'Anadrol': 'drol,adrol,a50,a 50,oxymetholone,oxymetholon,anapolon',
+  'Winstrol': 'winny,winni,winstrol depot,stanozolol,stano',
+  'Proviron': 'mesterolone,mesterolon,provi',
+  'HGH': 'gh,growth hormone,somatropin,wachstumshormon,genotropin,norditropin,omnitrope',
+  'Insulin': 'slin,humalog,novorapid,humulin,actrapid,lispro,aspart',
+  'Retatrutide': 'reta,retatrutid',
+  'Tirzepatide': 'tirz,tirze,tirzepatid,mounjaro,zepbound',
+  'Semaglutide': 'sema,semaglutid,ozempic,wegovy,rybelsus',
+  'BPC-157': 'bpc,bpc 157,body protection compound',
+  'TB-500': 'tb,tb 500,tb4,thymosin beta 4,thymosin beta-4',
+  'Exemestane': 'aromasin,exemestan,exe,asin',
+  'Anastrozole': 'adex,arimidex,anastrozol,ana',
+  'Letrozole': 'letro,femara,letrozol',
+  'Tamoxifen': 'nolva,nolvadex,tamox,tamo',
+  'Clomiphene': 'clomid,clomifen,clomi,clomifene',
+  'HCG': 'pregnyl,ovitrelle,brevactid,predalon,choriongonadotropin',
+  'Cabergoline': 'caber,cabergolin,dostinex,cabaser',
+  'Telmisartan': 'telmi,micardis',
+  'Nebivolol': 'nebi,nebilet',
+  'Rosuvastatin': 'rosu,rosuva,crestor',
+  'Finasteride': 'fina,finasterid,propecia,proscar',
+  'Dutasteride': 'duta,dutasterid,avodart',
+  'T3': 'cytomel,liothyronine,liothyronin,thybon',
+  'Clenbuterol': 'clen,spiropent,clenbuterol hcl',
+};
+const ALIAS = {};
+for (const c of CANON) ALIAS[norm(c)] = c;
+for (const [c, list] of Object.entries(ALIASES)) for (const a of list.split(',')) ALIAS[norm(a)] = c;
+const T3S = ['Testosterone Enanthate', 'Testosterone Cypionate', 'Testosterone Propionate'], TRENS = ['Trenbolone Acetate', 'Trenbolone Enanthate'], NANDS = ['Nandrolone Decanoate', 'NPP'];
+const AMBIG = { test: T3S, testo: T3S, testosterone: T3S, testosteron: T3S, tren: TRENS, trenbolone: TRENS, trenbolon: TRENS, nandrolone: NANDS, nandrolon: NANDS, nandro: NANDS };
+function recognise(raw) {
+  const v = raw.trim();
+  if (!v || CANON.includes(v)) return { kind: 'ok' };
+  const bare = v.replace(/\s*\d+([.,]\d+)?\s*(mg|mcg|µg|ug|ml|iu|ie|i\.e\.)?(\s*\/\s*\w+)?\s*$/i, '');   // "test e 250mg" -> "test e"
+  for (const k of [norm(v), norm(bare)]) {
+    if (ALIAS[k]) return { kind: 'alias', name: ALIAS[k] };
+    if (AMBIG[k]) return { kind: 'amb', options: AMBIG[k] };
+  }
+  return { kind: 'unknown' };
+}
+function check(r) {
+  const nm = r.querySelector('.nm'), h = r.querySelector('.hint'), res = recognise(nm.value), typed = nm.value.trim();
+  h.className = 'hint'; h.textContent = '';
+  if (res.kind === 'alias') { nm.value = res.name; h.classList.add('ok'); h.textContent = `recognised from “${typed}”`; }
+  else if (res.kind === 'amb') { h.classList.add('amb'); h.innerHTML = 'which one? ' + res.options.map((o) => `<button type="button" data-pick="${esc(o)}">${esc(o)}</button>`).join(' · '); }
+  else if (res.kind === 'unknown') h.textContent = 'not recognised – saved as typed';
+}
+function setGoal(g) { goal = g; document.querySelectorAll('#goal button').forEach((b) => b.classList.toggle('on', b.dataset.g === g)); }
+const day = (t) => new Date(t * 1000).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
+let me = '';
+function showAccess(a = {}) {
+  // one quiet line under the title; the key box only appears without access (or on "extend" for a monthly key)
+  const now = Date.now() / 1000, monthly = a.ok && a.plan === 'month';
+  const status = a.revoked ? '<b class="off">access revoked</b>'
+    : a.plan === 'life' ? '<b>lifetime</b>'
+    : monthly ? `active until <b>${day(a.until)}</b> · <button type="button" class="ext" id="ext">extend</button>`
+    : a.plan === 'month' ? `<b class="off">expired ${day(a.until)}</b>`
+    : a.admin ? '<b>admin</b>' : '<b class="off">no active key</b>';
+  $('who').hidden = false; $('who').innerHTML = `${esc(me)} · ${status}`;
+  $('ext')?.addEventListener('click', () => { $('acc').hidden = !$('acc').hidden; if (!$('acc').hidden) $('rkey').focus(); });
+  $('accLine').hidden = true;
+  $('acc').hidden = a.ok;
+  $('accBuy').hidden = a.ok;
+  const next = new URLSearchParams(location.search).get('next');   // came from a locked page: go back once access is there
+  if (a.ok && /^(rechner|chat|blut)\.html$/.test(next || '')) location.replace(next);
+}
+function showMine({ user, stack, access, temp }) {
+  $('auth').hidden = true; $('mine').hidden = false;
+  $('pwForm').hidden = !temp; $('pwNote').hidden = !temp; $('pwMsg').textContent = '';   // temporary password from the admin: ask for an own one right away
+  setTitle('My stack');
+  me = user;
+  showAccess(access);
+  $('rows').replaceChildren(...(stack.items.length ? stack.items : [{}]).map(row));
+  [...$('rows').children].forEach(check);   // older entries typed as slang get the full name too (kept once saved)
+  setGoal(stack.goal || '');
+  $('weight').value = stack.weight ? String(stack.weight).replace('.', ',') : '';
+  $('note').value = stack.note || '';
+  if (access?.admin) adminLinks();
+}
+$('redeemForm').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  $('accMsg').className = 'msg'; $('accMsg').textContent = ''; $('redeemGo').disabled = true;
+  try { const r = await api('redeem', { key: $('rkey').value }); $('rkey').value = ''; showAccess(r.access); $('accMsg').className = 'msg ok'; $('accMsg').textContent = 'key redeemed.'; }
+  catch (err) { $('accMsg').className = 'msg err'; $('accMsg').textContent = err.message; }
+  finally { $('redeemGo').disabled = false; }
+});
+// admins (server list ~/.config/currentcycle/admins): one quiet link to the separate admin panel, nothing in the site menu
+function adminLinks() {   // the menu gets its admin button from nav.js (cookie set at login); on this page also right after logging in
+  const nav = document.querySelector('nav');
+  if (nav && !nav.querySelector('a[href="/admin"]')) {
+    const adm = document.createElement('a');
+    adm.href = '/admin'; adm.textContent = 'admin';
+    adm.style.cssText = 'color:var(--pill);padding:2px 12px;border-radius:999px;box-shadow:inset 0 0 0 1px rgba(94,234,212,.5)';
+    const dc = nav.querySelector('a.dc'); dc ? nav.insertBefore(adm, dc) : nav.append(adm);
+  }
+}
+function showAuth() {
+  document.querySelector('nav a[href="/admin"]')?.remove();   // logged out: no admin button
+  $('mine').hidden = true; $('acc').hidden = true; $('auth').hidden = false; $('who').hidden = true; setTitle('Account');
+  if (new URLSearchParams(location.search).get('next')) $('authMsg').textContent = 'log in with an active key to use this.';
+}
+$('add').addEventListener('click', () => { const r = row(); $('rows').append(r); r.querySelector('.nm').focus(); });
+$('rows').addEventListener('change', (e) => { if (e.target.closest('.nm')) check(e.target.closest('.r')); });
+$('rows').addEventListener('click', (e) => {
+  const p = e.target.closest('[data-pick]'); if (!p) return;
+  const r = p.closest('.r'); r.querySelector('.nm').value = p.dataset.pick; check(r);
+});
+$('rows').addEventListener('click', (e) => { if (e.target.closest('.x')) { e.target.closest('.r').remove(); if (!$('rows').children.length) $('rows').append(row()); } });
+$('goal').addEventListener('click', (e) => { const b = e.target.closest('button'); if (b) setGoal(goal === b.dataset.g ? '' : b.dataset.g); });
+$('save').addEventListener('click', async () => {
+  const items = [...$('rows').children].map((r) => ({ name: r.querySelector('.nm').value, amount: r.querySelector('.amt').value, unit: r.querySelector('.un').value, rhythm: r.querySelector('.rh').value }))
+    .filter((i) => i.name.trim());
+  $('saveMsg').className = 'msg'; $('saveMsg').textContent = '';
+  $('save').disabled = true;
+  try {
+    await api('stack', { items, goal, weight: $('weight').value, note: $('note').value });
+    $('saveMsg').className = 'msg ok';
+    $('saveMsg').innerHTML = 'saved. <a href="chat.html">ask the chat →</a>';
+  } catch (err) { $('saveMsg').className = 'msg err'; $('saveMsg').textContent = err.message; if (err.status === 401) setTimeout(showAuth, 1200); }
+  finally { $('save').disabled = false; }
+});
+$('logout').addEventListener('click', async () => { await api('logout').catch(() => {}); showAuth(); });
+$('pwLink').addEventListener('click', () => { $('pwForm').hidden = !$('pwForm').hidden; if (!$('pwForm').hidden) $('pwOld').focus(); });
+$('pwForm').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  $('pwMsg').className = 'msg'; $('pwMsg').textContent = ''; $('pwGo').disabled = true;
+  try {
+    await api('password', { old: $('pwOld').value, new: $('pwNew').value });
+    $('pwOld').value = ''; $('pwNew').value = ''; $('pwNote').hidden = true;
+    $('pwMsg').className = 'msg ok'; $('pwMsg').textContent = 'password changed – other devices have to log in again.';
+    setTimeout(() => { $('pwForm').hidden = true; }, 2500);
+  } catch (err) { $('pwMsg').className = 'msg err'; $('pwMsg').textContent = err.message; if (err.status === 401) setTimeout(showAuth, 1200); }
+  finally { $('pwGo').disabled = false; }
+});
+$('del').addEventListener('click', async () => {
+  const pw = prompt('Delete account and stack permanently? Enter your password to confirm:');
+  if (!pw) return;
+  try { await api('delete', { pass: pw }); showAuth(); $('authMsg').textContent = 'account deleted.'; }
+  catch (err) { $('saveMsg').className = 'msg err'; $('saveMsg').textContent = err.message; }
+});
+
+api('me', null, 'GET').then(showMine, showAuth);
+</script>
+<script src="/nav.js?v=5"></script>
+</body>
+</html>

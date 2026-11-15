@@ -1,0 +1,17 @@
+User-agent: *
+Allow: /$
+Allow: /index.html
+Allow: /guide.html
+Allow: /rechner.html
+Allow: /favicon.svg
+Allow: /google02f5b042d7bb9a34.html
+Allow: /sitemap.xml
+Allow: /robots.txt
+Allow: /*.css
+Allow: /media/
+Allow: /manifest.json
+Allow: /fonts/
+Allow: /*.js
+Disallow: /
+
+Sitemap: https://currentcycle.xyz/sitemap.xml

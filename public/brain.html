@@ -1,0 +1,53 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#000000">
+<link rel="icon" type="image/svg+xml" href="/favicon.svg?v=5">
+<title>Brain | Current Cycle</title>
+<meta name="description" content="Explore the Current Cycle database as a brain: connected topics, coloured regions and a body atlas.">
+<link rel="canonical" href="https://currentcycle.xyz/brain.html">
+<base target="_top">   <!-- inside the homepage window, links (e.g. "Get access") open in the whole tab -->
+
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Current Cycle">
+<meta property="og:title" content="Brain – Current Cycle">
+<meta property="og:description" content="Explore connected bodybuilding topics in a live, interactive database.">
+<meta property="og:url" content="https://currentcycle.xyz/brain.html">
+<link rel="preload" href="/fonts/schibsted-grotesk-latin.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="/theme.css?v=54">
+<style>
+  body { background: #030607; }
+  /* the brain starts right under the fixed 68px nav (links centred in it: same space above and below) */
+  .wrap.bw { max-width: none; margin: 0; padding: calc(68px + env(safe-area-inset-top)) 0 0; }
+  html, body { height: 100%; overflow: hidden; overscroll-behavior: none; } html { scrollbar-gutter: auto; } body { position: fixed; inset: 0; }   /* the brain is the whole page: no scrolling below it (fixed body: Safari/iOS ignore overflow hidden) */
+  /* the brain fills the screen below the nav exactly; the crawler/activity strip under it belongs to the admin tab only */
+  .cl-stage { height: calc(100svh - 69px - env(safe-area-inset-top)) !important; } .cl-live, .cl-dash { display: none !important; } #brain { overflow: hidden; }
+  /* ?embed (window on the homepage): only the living brain, no nav, panels or controls;
+     ?embed=hero (start screen, to try out): topics stay; compact previews hide search */
+  .embed nav, .embed :is(.cl-views, .cl-pan, .cl-head, .cl-leg, .cl-foot, .cl-stack, .cl-live, .cl-dash) { display: none !important; }
+  .embed:not(.hero) :is(.cl-top, .cl-side, .cl-menu) { display: none !important; } .embed :is(.cl-mbtn, .cl-mlist, .cl-fly) { display: none !important; } .embed.hero :is(#clArrBtn, #clViewBtn) { display: none !important; }
+  .embed .wrap.bw { padding: 0; } .embed .cl-stage { height: 100vh !important; } .embed:not(.hero) .cl-stage { cursor: pointer; }
+  @media(max-width:900px) { .embed.hero .cl-menu { display:none!important; } }
+</style>
+<script>if (/[?&]embed\b/.test(location.search)) document.documentElement.classList.add('embed', ...(/[?&]embed=hero\b/.test(location.search) ? ['hero'] : []));</script>
+<script src="/i18n.js?v=36" defer></script>
+<script src="/database-stats.js?v=1" defer></script>
+</head>
+<body>
+<div class="wrap bw">
+  <nav><a class="brand" href="/">current cycle</a><a href="/brain.html" class="on">database</a><a href="/chat.html">ai chat</a><a href="/blut.html">bloodwork</a><a href="/rechner.html">calculator</a><a href="/konto.html">account</a><a class="dc" href="/discord" target="_blank" rel="noopener" aria-label="Discord" title="Discord"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20.3 4.4A19.6 19.6 0 0 0 15.4 3l-.6 1.3a18.2 18.2 0 0 0-5.6 0L8.6 3a19.5 19.5 0 0 0-4.9 1.5C.6 9.1-.3 13.6.1 18.1a19.8 19.8 0 0 0 6 3l1.3-2.1a12.8 12.8 0 0 1-2-1l.5-.4a14 14 0 0 0 12.2 0l.5.4c-.6.4-1.3.7-2 1l1.3 2.1a19.7 19.7 0 0 0 6-3c.5-5.2-.9-9.7-3.6-13.7ZM8 15.3c-1.2 0-2.2-1.1-2.2-2.4S6.8 10.5 8 10.5s2.2 1.1 2.2 2.4-1 2.4-2.2 2.4Zm8 0c-1.2 0-2.2-1.1-2.2-2.4s1-2.4 2.2-2.4 2.2 1.1 2.2 2.4-1 2.4-2.2 2.4Z"/></svg></a></nav>
+</div>
+<main id="brain"></main>
+<script>window.ccCloudPublic = true;</script>
+<script src="/admin-cloud.js?v=126"></script>
+<script>
+  const el = document.getElementById('brain');
+  const go = () => window.ccCloud && window.ccCloud.open(el);
+  go();
+  document.addEventListener('visibilitychange', () => document.hidden ? window.ccCloud.close() : go());
+</script>
+<script src="/nav.js?v=5"></script>
+</body>
+</html>

@@ -1,0 +1,9 @@
+{
+  "name": "currentcycle",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "start": "node server.js",
+    "mirror": "node scripts/mirror.mjs"
+  }
+}
